@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뇌, 창의성, 그리고 AI - 이해도 퀴즈</title>
+    <style>
+        /* 기본 스타일 및 글꼴 설정 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6; /* 부드러운 회색 배경 */
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 전체를 감싸는 컨테이너 */
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+        }
+
+        /* 퀴즈 제목 */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 퀴즈 설명 */
+        .description {
+            text-align: center;
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 2.5rem;
+        }
+
+        /* 개별 질문 블록 */
+        .question-block {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1.5rem;
+        }
+
+        /* 질문 텍스트 */
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            color: #2d3748;
+        }
+
+        /* 선택지(옵션) 영역 */
+        .options label {
+            display: block;
+            margin-bottom: 0.75rem;
+            padding: 0.85rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #fdfdfd;
+        }
+
+        .options label:hover {
+            background-color: #f8f9fa;
+            border-color: #007bff;
+        }
+
+        /* 라디오 버튼 선택 시 스타일 */
+        .options input[type="radio"]:checked + span {
+            font-weight: 600;
+            color: #0056b3;
+        }
+
+        .options input[type="radio"] {
+            margin-right: 0.6rem;
+            /* 라디오 버튼을 더 크게 만듭니다 */
+            transform: scale(1.1);
+        }
+
+        /* 제출하기 버튼 */
+        #submitBtn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 1.5rem;
+        }
+
+        #submitBtn:hover {
+            background-color: #0056b3;
+        }
+
+        /* --- 결과 표시 스타일 --- */
+
+        /* 전체 결과 컨테이너 */
+        #resultContainer {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            text-align: center;
+            display: none; /* 기본 숨김 */
+        }
+
+        /* 점수대별 배경색 */
+        #resultContainer.pass {
+            background-color: #e6ffed;
+            color: #256029;
+            border: 1px solid #b7ebc2;
+        }
+
+        #resultContainer.fail {
+            background-color: #fff0f0;
+            color: #c92a2a;
+            border: 1px solid #ffc9c9;
+        }
+
+        /* 개별 문항 결과 (정답/오답) */
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none; /* 기본 숨김 */
+        }
+
+        .result.correct {
+            background-color: #e6ffed;
+            border: 1px solid #b7ebc2;
+            color: #256029;
+        }
+
+        .result.incorrect {
+            background-color: #fff0f0;
+            border: 1px solid #ffc9c9;
+            color: #c92a2a;
+        }
+
+        .result p {
+            margin: 0.25rem 0;
+        }
+
+        /* 해설 영역 */
+        .explanation {
+            font-size: 0.95rem;
+            margin-top: 0.75rem;
+            color: #444;
+            border-top: 1px dashed #ccc;
+            padding-top: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .explanation strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🧠 뇌, 창의성, 그리고 AI</h1>
+        <p class="description">학습한 내용을 바탕으로 퀴즈를 풀어보세요.</p>
+
+        <!-- 전체 결과가 표시될 영역 (위치 이동) -->
+        <div id="resultContainer"></div>
+
+        <!-- 퀴즈 문항이 동적으로 삽입될 폼 -->
+        <form id="quizForm">
+            <!-- JavaScript에 의해 문항이 채워집니다. -->
+        </form>
+
+        <!-- 제출 버튼 -->
+        <button id="submitBtn">제출하기</button>
+
+        <!-- (기존 위치의 결과 컨테이너 삭제) -->
+    </div>
+
+    <script>
+        // 퀴즈 데이터 정의
+        // 각 문제는 질문, 5개의 선택지, 정답(0~4 index), 해설로 구성
+        const quizData = [
+            {
+                question: "1. [PART 0] 이세돌 9단이 알파고와의 대국 후 느낀 점과 가장 거리가 <strong>먼</strong> 것은?",
+                options: [
+                    "AI가 정해진 룰 안에서 인간을 압도함을 인정했다.",
+                    "AI를 따라가다 보니 인간 고유의 자부심이 사라졌다.",
+                    "새로운 게임을 '만드는 것'이 중요해졌다고 생각했다.",
+                    "AI가 정답을 알려주니 바둑이 더 즐거워졌다.",
+                    "룰이 정해진 게임을 '두는 것'의 의미가 변했다고 느꼈다."
+                ],
+                answer: 3, // 3번 index (네 번째 옵션)
+                explanation: "이세돌 9단은 AI가 제시하는 길을 따라가는 바둑이 되자, 인간 고유의 '자부심'과 '즐거움'이 사라졌다고 언급했습니다. 따라서 바둑이 더 즐거워졌다는 것은 사실과 거리가 멉니다."
+            },
+            {
+                question: "2. [PART 0] 이 자료에서 학생들 머릿속의 '블랙박스'가 의미하는 바로 가장 적절한 것은?",
+                options: [
+                    "학생들이 사용하는 어두운 색의 필통",
+                    "교실의 조명 장치",
+                    "교사는 알기 어려운, 학생 머릿속에서 일어나는 '진짜 학습' 과정",
+                    "AI가 정답을 도출하는 내부 알고리즘",
+                    "성적표에 기록되지 않는 학생의 숨겨진 재능"
+                ],
+                answer: 2,
+                explanation: "'블랙박스'는 교사가 밖에서 관찰하기 어려운, 학생의 머릿속에서 실제로 일어나는 '진짜 학습' 과정을 비유하는 용어입니다."
+            },
+            {
+                question: "3. [PART 1] 김정운 박사가 강조한 '창의성'이 필요한 근본적인 이유로 가장 적절한 것은?",
+                options: [
+                    "높은 성적을 받기 위해",
+                    "타인과의 경쟁에서 이기기 위해",
+                    "삶을 '재미있게' 만들고 주관적 만족('사용가치')을 얻기 위해",
+                    "'교환가치'를 높여 부자가 되기 위해",
+                    "AI보다 더 빨리 정답을 찾기 위해"
+                ],
+                answer: 2,
+                explanation: "김정운 박사는 현대인의 가장 큰 문제가 '재미'가 없는 것이라며, 창의성은 삶을 재미있게 만들고 '사용가치'(주관적 만족)를 높이기 위해 필요하다고 강조했습니다."
+            },
+            {
+                question: "4. [PART 1] 이 자료에서 설명하는 '창의성'의 본질은 무엇인가?",
+                options: [
+                    "무(無)에서 유(有)를 만드는 신의 영역이다.",
+                    "이미 존재하는 것들의 '새로운 편집(Editing)'이다.",
+                    "누구도 생각지 못한 것을 홀로 발견하는 것이다.",
+                    "복잡한 노트를 완벽하게 필기하는 것이다.",
+                    "타고난 천재성에서만 발현되는 능력이다."
+                ],
+                answer: 1,
+                explanation: "창의성은 무에서 유를 만드는 것이 아니라, 이미 존재하는 것들을 '낯설게 하기'(Verfremdung) 방식으로 새롭게 '편집(Editing)'하는 능력이라고 설명합니다."
+            },
+            {
+                question: "5. [PART 1] '편집'을 잘하기 위해 필요한 '메타 언어'가 의미하는 것은?",
+                options: [
+                    "외국어 능력",
+                    "어려운 전문 용어",
+                    "자료를 분류하는 자신만의 '주체적 관점' 또는 '자신만의 제목'",
+                    "AI가 사용하는 프로그래밍 언어",
+                    "교과서에 나오는 표준화된 용어"
+                ],
+                answer: 2,
+                explanation: "'메타 언어'는 자료를 '자신만의 제목'으로 분류하고 저장하는 것을 의미하며, 이는 곧 '자신의 생각에 대한 생각(메타인지)'이며 '주체적 관점'을 만드는 핵심입니다."
+            },
+            {
+                question: "6. [PART 2] 6단계 학습 모형의 첫 번째 단계인 '관심 갖기'에서 주의를 끄는 3요소에 해당하지 <strong>않는</strong> 것은?",
+                options: [
+                    "감정가 (강렬한 감정)",
+                    "새로움",
+                    "호기심 (수수께끼, 미스터리)",
+                    "내재적 동기 (WIIFM)",
+                    "위 3가지는 모두 주의를 끄는 요소이다."
+                ],
+                answer: 3,
+                explanation: "주의를 끄는 3요소는 '①감정가', '②새로움', '③호기심'입니다. '내재적 동기(WIIFM - 이게 나에게 왜 중요한가?)'는 [2단계] 전념하기의 핵심 요소입니다."
+            },
+            {
+                question: "7. [PART 2] '집중하기' 단계에서 '이중부호화' 전략이 의미하는 바로 가장 적절한 것은?",
+                options: [
+                    "두 가지 언어로 동시에 공부하는 것",
+                    "이미지와 텍스트를 함께 제공하여 두 개의 채널(음운 고리, 시공간 잡기장)을 모두 사용하는 것",
+                    "타이핑과 손글씨를 번갈아 사용하는 것",
+                    "5분 공부하고 20분 휴식하는 분산 학습법",
+                    "음운 고리와 시공간 잡기장을 의도적으로 분리해서 사용하는 것"
+                ],
+                answer: 1,
+                explanation: "'이중부호화'는 작업기억의 2개 채널(음운 고리-언어 / 시공간 잡기장-시각)을 모두 활용하는 전략으로, 이미지와 텍스트를 함께 제공하면 기억률이 크게 상승합니다."
+            },
+            {
+                question: "8. [PART 2] '파인만 학습법'을 통해 '이해'했는지 확인하는 방법으로 가장 적절한 것은?",
+                options: [
+                    "배운 내용을 여러 번 반복해서 읽는다.",
+                    "AI에게 요약해 달라고 요청한다.",
+                    "아이에게 설명하듯 단순화/비유로 작성해보고 '지식의 빈틈'을 찾는다.",
+                    "화려하고 어려운 용어를 사용하여 전문적으로 설명한다.",
+                    "며칠 간격으로 동일한 퀴즈를 반복해서 푼다."
+                ],
+                answer: 2,
+                explanation: "파인만 학습법은 내가 정말 '이해'했는지 알기 위해, 아이에게 설명하듯 단순화/비유로 작성해보고, '화려한 용어'를 쓴 부분(지식의 빈틈)을 찾아내는 과정입니다."
+            },
+            {
+                question: "9. [PART 2] '연습 및 성찰하기' 단계에서 장기기억 강화에 가장 효과적인 전략은?",
+                options: [
+                    "시험 전날 밤새도록 '벼락치기'로 집중 연습한다.",
+                    "노트를 처음부터 끝까지 여러 번 '다시 읽기'한다.",
+                    "퀴즈나 질문으로 '꺼내는 연습(인출연습)'을 한다.",
+                    "자신이 잘하는 부분만 반복해서 연습한다.",
+                    "친구의 노트를 그대로 베껴 쓴다."
+                ],
+                answer: 2,
+                explanation: "장기기억 강화에는 '벼락치기'나 '다시 읽기'보다, 퀴즈나 질문으로 '꺼내는 연습(인출연습)'이 신경망을 활성화하여 훨씬 효과적이라고 설명합니다."
+            },
+            {
+                question: "10. [PART 3] AI(LLM)가 문맥을 '이해'하는 것이 아니라 다음 단어를 '예측'하기 때문에 발생하는, 그럴듯한 거짓말을 하는 현상을 무엇이라고 부르는가?",
+                options: [
+                    "이중부호화 (Dual-Coding)",
+                    "환각 (Hallucination)",
+                    "메타인지 (Metacognition)",
+                    "공동지능 (Collective Intelligence)",
+                    "블랙박스 (Black Box)"
+                ],
+                answer: 1,
+                explanation: "AI(LLM)는 다음 토큰(단어)을 '예측'할 뿐 '이해'하는 것이 아니므로, 사용자를 만족시키기 위해 그럴듯한 거짓말을 하며, 이를 '환각(Hallucination)'이라고 부릅니다."
+            },
+            {
+                question: "11. [PART 3] AI 시대에 '기반 지식(장기기억)'이 여전히 중요한 이유로 가장 적절한 것은?",
+                options: [
+                    "AI가 고장 났을 때를 대비하기 위해",
+                    "AI의 결과물을 평가하고, 환각을 구별하며, 비판적으로 사고하기 위해",
+                    "AI에게 명령을 내릴 필요가 없도록 하기 위해",
+                    "AI보다 더 빨리 암기할 수 있음을 증명하기 위해",
+                    "AI는 기반 지식을 저장할 수 없기 때문에"
+                ],
+                answer: 1,
+                explanation: "AI의 결과물을 평가하고, 환각을 구별하며, 비판적으로 사고하려면 해당 분야의 '전문성'과 '기반 지식'(장기기억)이 반드시 필요합니다. 즉, 아는 만큼 AI를 잘 쓸 수 있습니다."
+            },
+            {
+                question: "12. [PART 4] AI 시대, 미래 교사의 역할을 '지식의 편집자'에서 무엇으로 변화해야 한다고 제안하는가?",
+                options: [
+                    "데이터 과학자 (Data Scientist)",
+                    "AI 개발자 (AI Developer)",
+                    "학습 경험의 '총감독' (Executive Producer)",
+                    "콘텐츠 크리에이터 (Contents Creator)",
+                    "상담 전문가 (Counselor)"
+                ],
+                answer: 2,
+                explanation: "과거 교사가 지식의 '편집자'였다면, 미래 교사는 학생의 호기심을 자극하고, 학습 원리에 맞게 경험을 설계하며, AI를 활용해 창의성을 코칭하는 '학습 경험의 총감독' 역할을 해야 한다고 제안합니다."
+            }
+        ];
+
+        // 페이지가 로드되었을 때 퀴즈를 렌더링하는 함수
+        document.addEventListener('DOMContentLoaded', () => {
+            renderQuiz();
+            
+            // 폼 제출(submit) 이벤트가 아닌, '제출하기' 버튼 클릭(click) 이벤트를 감지
+            const submitButton = document.getElementById('submitBtn');
+            submitButton.addEventListener('click', handleSubmit);
+        });
+
+        // 퀴즈 문항을 HTML로 생성하는 함수
+        function renderQuiz() {
+            const quizForm = document.getElementById('quizForm');
+            const quizHtml = quizData.map((questionData, qIndex) => {
+                
+                // 5개의 선택지(옵션) HTML 생성
+                const optionsHtml = questionData.options.map((option, oIndex) => `
+                    <label>
+                        <input type="radio" name="q${qIndex}" value="${oIndex}">
+                        <span>${option}</span>
+                    </label>
+                `).join('');
+
+                // 개별 질문 블록 HTML 생성
+                return `
+                    <div class="question-block" id="q-block-${qIndex}">
+                        <p class="question-text">${questionData.question}</p>
+                        <div class="options">
+                            ${optionsHtml}
+                        </div>
+                        <!-- 개별 문항의 결과가 표시될 영역 -->
+                        <div class="result" style="display: none;"></div>
+                    </div>
+                `;
+            }).join('');
+
+            quizForm.innerHTML = quizHtml;
+        }
+
+        // '제출하기' 버튼 클릭 시 채점을 처리하는 함수
+        function handleSubmit(event) {
+            // form의 기본 제출 동작을 막습니다. (페이지 새로고침 방지)
+            event.preventDefault(); 
+
+            let score = 0;
+            const totalQuestions = quizData.length;
+            const resultContainer = document.getElementById('resultContainer');
+
+            // 모든 질문을 순회하며 채점
+            quizData.forEach((questionData, index) => {
+                const qBlock = document.getElementById(`q-block-${index}`);
+                const resultDiv = qBlock.querySelector('.result');
+                
+                // 선택된 라디오 버튼을 찾습니다.
+                const selected = qBlock.querySelector(`input[name="q${index}"]:checked`);
+                
+                // 사용자가 선택한 답의 index (선택 안 했으면 -1)
+                const userAnswerIndex = selected ? parseInt(selected.value) : -1;
+                // 실제 정답의 index
+                const correctAnswerIndex = questionData.answer;
+
+                // 정답일 경우
+                if (userAnswerIndex === correctAnswerIndex) {
+                    score++;
+                    resultDiv.innerHTML = '<p><strong>정답입니다!</strong></p>';
+                    resultDiv.className = 'result correct';
+                } 
+                // 오답일 경우 (선택 안 한 경우 포함)
+                else {
+                    let feedback = '<p><strong>틀렸습니다.</strong></p>';
+                    
+                    if (userAnswerIndex === -1) {
+                        feedback += '<p>답을 선택하지 않았습니다.</p>';
+                    }
+                    
+                    feedback += `<p><strong>정답:</strong> ${questionData.options[correctAnswerIndex]}</p>
+                                 <div class="explanation">
+                                     <strong>해설:</strong> ${questionData.explanation}
+                                 </div>`;
+                    
+                    resultDiv.innerHTML = feedback;
+                    resultDiv.className = 'result incorrect';
+                }
+
+                // 개별 문항 결과 표시
+                resultDiv.style.display = 'block';
+            });
+
+            // 전체 점수 계산 및 표시
+            const percentage = (score / totalQuestions) * 100;
+            resultContainer.innerHTML = `총 ${totalQuestions}문제 중 ${score}문제를 맞혔습니다! (점수: ${percentage.toFixed(1)}점)`;
+            
+            // 점수에 따라 결과 컨테이너 스타일 변경
+            resultContainer.className = percentage >= 70 ? 'pass' : 'fail';
+            
+            // 전체 결과 표시
+            resultContainer.style.display = 'block';
+
+            // 페이지 최상단으로 스크롤하여 결과를 바로 확인하도록 함
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+    </script>
+</body>
+</html>
+
